@@ -14,6 +14,8 @@
 
 geminik8s revolutionizes Kubernetes deployments by providing a cost-effective dual-node high availability solution that reduces infrastructure costs by up to 33% compared to traditional three-node clusters, while maintaining enterprise-grade reliability and performance.
 
+![Demo](demo.gif)
+
 ## 🎯 Why geminik8s?
 
 **Traditional Kubernetes HA Pain Points:**
