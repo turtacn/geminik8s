@@ -1,0 +1,26 @@
+# Template for geminik8s Cluster Configuration
+apiVersion: geminik8s.turtacn.com/v1alpha1
+kind: ClusterConfig
+metadata:
+  # The name of the cluster (e.g., "production-cluster")
+  name: {{ .Name }}
+spec:
+  # Network configuration for the cluster
+  network:
+    # The Virtual IP (VIP) shared between the two nodes
+    vip: {{ .VIP }}
+
+  # Definition of the two nodes in the cluster
+  nodes:
+    - ip: {{ .Node1IP }}
+      role: Leader
+    - ip: {{ .Node2IP }}
+      role: Follower
+
+  # Storage configuration for the cluster backend
+  storage:
+    type: "postgresql"
+    # Further storage options can be added here,
+    # such as connection details if not using defaults.
+
+#Personal.AI order the ending

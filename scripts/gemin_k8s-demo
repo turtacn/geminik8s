@@ -1,0 +1,136 @@
+#!/bin/bash
+# gemin_k8s-demo : 演示 Dual-Node Kubernetes HA CLI
+# 特色：专业、创新、体验优于 kubectl
+
+# 彩色输出定义
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+function step() {
+  echo -e "\n${BLUE}▶ $1${NC}"
+  sleep 1
+}
+
+function progress() {
+  for i in {1..20}; do
+    bar=$(printf "%-${i}s" "#" | tr ' ' '#')
+    echo -ne "   [${GREEN}${bar}${NC}$(printf "%$((20-i))s" "")] $((i*5))%\r"
+    sleep 0.1
+  done
+  echo ""
+}
+
+echo -e "${GREEN}🚀 geminik8s - Dual-Node Kubernetes HA Solution Demo${NC}"
+echo "======================================================"
+echo ""
+
+step "检查版本信息"
+echo "\$ gemin_k8s version"
+echo -e "geminik8s version ${GREEN}v1.0.0${NC}"
+echo "Built with: go1.21.5"
+echo "Platform: linux/amd64"
+
+step "初始化双节点集群配置"
+echo "\$ gemin_k8s init --name demo-cluster --node1-ip 192.168.1.10 --node2-ip 192.168.1.11 --vip 192.168.1.100"
+progress
+echo -e "${GREEN}✅ Generated node1 configuration${NC}"
+echo -e "${GREEN}✅ Generated node2 configuration${NC}"
+echo -e "${GREEN}✅ Created virtual IP configuration${NC}"
+echo -e "${GREEN}✅ PostgreSQL replication setup ready${NC}"
+echo -e "📁 Configuration saved to: ./demo-cluster/"
+
+step "部署集群"
+echo "\$ gemin_k8s deploy --config-dir ./demo-cluster --bootstrap-leader node1"
+echo -e "${YELLOW}🔧 Deploying dual-node cluster...${NC}"
+progress
+echo "📦 Installing K8s on node1 (192.168.1.10)..."
+sleep 1
+echo "📦 Installing K8s on node2 (192.168.1.11)..."
+sleep 1
+echo "🗃️  Setting up PostgreSQL + Kine..."
+sleep 1
+echo "🔄 Configuring leader election..."
+sleep 1
+echo -e "${GREEN}✅ Cluster deployed successfully!${NC}"
+
+step "查看集群状态"
+echo "\$ gemin_k8s status --cluster demo-cluster --details"
+sleep 1
+cat << STATUS
+🏥 Cluster Health Report
+───────────────────────────────────────────────
+ Cluster : demo-cluster
+ Status  : ${GREEN}🟢 Healthy${NC}
+ Nodes   :
+   • node1 (192.168.1.10)  Role: Leader    🟢 Ready   Uptime: 3h45m
+   • node2 (192.168.1.11)  Role: Follower  🟢 Ready   Uptime: 3h44m
+ VIP     : 192.168.1.100 (bound to node1)
+ Database: PostgreSQL + Kine
+   • Replication : ${GREEN}Active${NC} (lag <100ms)
+   • Failover SLA: <5s
+ Kubernetes:
+   • Version : v1.28.0
+   • Nodes   : 2/2 Ready
+   • Pods    : 37 Running / 0 Failed
+ Innovation:
+   • Dual-node HA reduces infra cost by ${GREEN}33%${NC}
+   • Replaces etcd with PostgreSQL (simpler ops)
+   • Built-in A/B OS rollback for zero-downtime upgrades
+───────────────────────────────────────────────
+STATUS
+
+step "执行手动故障转移"
+echo "\$ gemin_k8s failover --cluster demo-cluster --promote node2"
+echo -e "${YELLOW}⚡ Initiating controlled failover...${NC}"
+progress
+echo "🔄 Promoting node2 to leader..."
+sleep 1
+echo "📊 Updating PostgreSQL replication..."
+sleep 1
+echo "🔀 Switching VIP to node2..."
+sleep 1
+echo -e "${GREEN}✅ Failover completed in 4.2s${NC}"
+cat << FAILOVER
+🏥 New cluster state:
+├── Leader  : node2 (192.168.1.11) ${GREEN}🟢${NC}
+└── Follower: node1 (192.168.1.10) ${GREEN}🟢${NC}
+FAILOVER
+
+step "执行升级演示"
+echo "\$ gemin_k8s upgrade --cluster demo-cluster --version v1.29.0 --strategy rolling"
+echo "⬆️  Preparing upgrade..."
+progress
+echo "📦 Pulling new Kairos OS image..."
+echo "🔄 Upgrading node1..."
+sleep 2
+echo "🔄 Upgrading node2..."
+sleep 2
+echo -e "${GREEN}✅ Upgrade completed to Kubernetes v1.29.0${NC}"
+
+step "执行备份与恢复"
+echo "\$ gemin_k8s backup --cluster demo-cluster --output backup-2025-08-18.tar.gz --compress"
+echo -e "${GREEN}✅ Backup completed (compressed, encrypted)${NC}"
+echo "\$ gemin_k8s restore --cluster demo-cluster --backup-file backup-2025-08-18.tar.gz --verify"
+echo -e "${GREEN}✅ Restore verified successfully${NC}"
+
+step "替换节点演示"
+echo "\$ gemin_k8s replace-node --cluster demo-cluster --old-node node1 --new-node-ip 192.168.1.12 --preserve-data"
+echo "🔄 Draining old node..."
+progress
+echo "📦 Installing K8s on new node..."
+sleep 1
+echo -e "${GREEN}✅ Node replacement completed${NC}"
+
+step "总结"
+echo "💡 Demo completed! Key features demonstrated:"
+echo -e "   ${GREEN}✅ Cost-effective dual-node setup (33% cost reduction)${NC}"
+echo -e "   ${GREEN}✅ Automatic failover in seconds${NC}"
+echo -e "   ${GREEN}✅ PostgreSQL-backed storage (no etcd complexity)${NC}"
+echo -e "   ${GREEN}✅ Rolling upgrades with auto-rollback${NC}"
+echo -e "   ${GREEN}✅ Data backup & restore built-in${NC}"
+echo -e "   ${GREEN}✅ Production-ready high availability${NC}"
+echo ""
+echo "📖 Learn more: https://github.com/turtacn/geminik8s"

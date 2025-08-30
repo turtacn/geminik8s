@@ -1,0 +1,23 @@
+# Template for geminik8s Node Host Metadata (hostMeta.yaml)
+# This file resides on each node and describes the cluster from its perspective.
+
+# myId defines the identity of the node this file is on.
+myId:
+  name: {{ .MyName }}
+  ip: {{ .MyIP }}
+  role: {{ .MyRole }}
+
+# peerId defines the identity of the other node in the cluster.
+peerId:
+  name: {{ .PeerName }}
+  ip: {{ .PeerIP }}
+  role: {{ .PeerRole }}
+
+# vip is the virtual IP for the cluster.
+vip: {{ .VIP }}
+
+# lastModified is the timestamp of the last modification.
+# This will be populated by the agent at runtime.
+lastModified: "{{ .Timestamp }}"
+
+#Personal.AI order the ending
