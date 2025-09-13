@@ -27,7 +27,7 @@ Traditional Kubernetes HA deployments face multiple challenges, especially in te
 - The consistency assurance mechanism in network partition scenarios is complex.
 - Sensitivity to latency in cross-regional deployments.
 
-### DFX (Design for X) Analysis
+### DFX （Design for X） Analysis
 
 In terms of non-functional requirements such as reliability, maintainability, performance, and security, traditional solutions have the following challenges:
 
@@ -67,8 +67,8 @@ geminik8s adopts a "smart simplification" design philosophy to address the pain 
 graph TB
     %% User Layer
     subgraph UL[User Layer]
-        CLI[CLI Tool<br/>(gemin_k8s)]
-        WEB[Web Interface<br/>(Optional)]
+        CLI[CLI Tool<br/>（gemin_k8s）]
+        WEB[Web Interface<br/>（Optional）]
     end
 
     %% Control Layer
@@ -81,16 +81,16 @@ graph TB
     %% Cluster Layer
     subgraph CLUSTER[Cluster Layer]
         subgraph NODE1[Node 1]
-            K3S1[K3s Server<br/>(Leader)]
-            KINE1[Kine Proxy<br/>(Primary)]
-            PG1[PostgreSQL<br/>(Master)]
+            K3S1[K3s Server<br/>（Leader）]
+            KINE1[Kine Proxy<br/>（Primary）]
+            PG1[PostgreSQL<br/>（Master）]
             LA1[Liveness Agent]
         end
 
         subgraph NODE2[Node 2]
-            K3S2[K3s Server<br/>(Follower)]
-            KINE2[Kine Proxy<br/>(Replica)]
-            PG2[PostgreSQL<br/>(Replica)]
+            K3S2[K3s Server<br/>（Follower）]
+            KINE2[Kine Proxy<br/>（Replica）]
+            PG2[PostgreSQL<br/>（Replica）]
             LA2[Liveness Agent]
         end
 
@@ -167,7 +167,7 @@ The data flow design ensures the system's high availability and consistency. In 
 
 ## Core Component Detailed Design
 
-### CLI Engine Design (Based on Cobra)
+### CLI Engine Design （Based on Cobra）
 
 The CLI engine is the main entry point for users to interact with geminik8s. It is built on the Cobra framework to provide an intuitive command-line experience:
 
@@ -196,7 +196,7 @@ gemin_k8s [global-options]
 │
 ├── status [status-options]     # View cluster status
 │   ├── --cluster string         # Specify cluster name
-│   ├── --output string          # Output format (table|json|yaml)
+│   ├── --output string          # Output format （table|json|yaml）
 │   ├── --watch                  # Continuously monitor status changes
 │   ├── --refresh duration       # Status refresh interval
 │   ├── --details                # Show detailed information
@@ -216,7 +216,7 @@ gemin_k8s [global-options]
 │   ├── --cluster string         # Target cluster name
 │   ├── --version string         # Target version
 │   ├── --image string           # Custom upgrade image
-│   ├── --strategy string        # Upgrade strategy (rolling|parallel)
+│   ├── --strategy string        # Upgrade strategy （rolling|parallel）
 │   ├── --backup                 # Automatically back up before upgrading
 │   ├── --rollback-timeout duration # Rollback timeout
 │   ├── --skip-validation        # Skip version compatibility validation
@@ -234,7 +234,7 @@ gemin_k8s [global-options]
 ├── backup [backup-options]        # Data backup
 │   ├── --cluster string         # Target cluster name
 │   ├── --output string          # Backup file output path
-│   ├── --type string            # Backup type (full|incremental)
+│   ├── --type string            # Backup type （full|incremental）
 │   ├── --compress               # Compress the backup file
 │   ├── --encryption-key string  # Backup encryption key
 │   ├── --retention int          # Backup retention days
@@ -249,13 +249,13 @@ gemin_k8s [global-options]
 │   └── --verify                 # Verify the recovery result
 │
 └── version [version-options]       # Version information
-    ├── --output string          # Output format (text|json|yaml)
+    ├── --output string          # Output format （text|json|yaml）
     ├── --short                  # Show only the version number
     └── --check-update           # Check for updated versions
 
 [global-options]
 ├── --config string         # Path to the configuration file
-├── --log-level string      # Log level (debug|info|warn|error)
+├── --log-level string      # Log level （debug|info|warn|error）
 ├── --log-file string       # Path to the log file
 ├── --no-color              # Disable color output
 ├── --quiet                 # Quiet mode
@@ -310,11 +310,11 @@ The plugin system provides powerful extension capabilities for geminik8s:
 
 ```go
 type Plugin interface {
-    Name() string
-    Version() string
-    Execute(ctx context.Context, params PluginParams) (*PluginResult, error)
-    Validate(params PluginParams) error
-    Cleanup(ctx context.Context) error
+    Name（） string
+    Version（） string
+    Execute（ctx context.Context, params PluginParams） （*PluginResult, error）
+    Validate（params PluginParams） error
+    Cleanup（ctx context.Context） error
 }
 ```
 
@@ -330,7 +330,7 @@ type Plugin interface {
 
 #### Role Management and Election
 
-geminik8s implements a role management mechanism based on host metadata (hostMeta):
+geminik8s implements a role management mechanism based on host metadata （hostMeta）:
 
 ```mermaid
 stateDiagram-v2
@@ -370,13 +370,13 @@ graph TB
     end
 
     subgraph KINE_LAYER[Kine Translation Layer]
-        KINE1[Kine Primary<br/>(Master Node)]
-        KINE2[Kine Replica<br/>(Replica Node)]
+        KINE1[Kine Primary<br/>（Master Node）]
+        KINE2[Kine Replica<br/>（Replica Node）]
     end
 
     subgraph PG_LAYER[PostgreSQL Storage Layer]
-        PG_MASTER[PostgreSQL Master<br/>(Primary Database)]
-        PG_REPLICA[PostgreSQL Replica<br/>(Replica Database)]
+        PG_MASTER[PostgreSQL Master<br/>（Primary Database）]
+        PG_REPLICA[PostgreSQL Replica<br/>（Replica Database）]
     end
 
     API1 --> KINE1
@@ -464,8 +464,8 @@ In large-scale deployment scenarios, the cost savings are even more significant.
 
 **Availability Metrics**:
 
-*   **Target Availability**: 99.9% annual availability (compared to 99.99% for traditional three-node setups).
-*   **Failover Time**: 4.5 minutes on average (based on benchmark tests).
+*   **Target Availability**: 99.9% annual availability （compared to 99.99% for traditional three-node setups）.
+*   **Failover Time**: 4.5 minutes on average （based on benchmark tests）.
 *   **Data Consistency**: Eventual consistency, with a synchronization delay of < 100ms.
 
 **Performance Metrics**:
@@ -476,21 +476,21 @@ In large-scale deployment scenarios, the cost savings are even more significant.
 
 ### Development Roadmap and Outlook
 
-**Short-Term Goals (within 6 months)**:
+**Short-Term Goals （within 6 months）**:
 
 *   Complete core feature development and testing.
 *   Release v1.0 official version.
 *   Establish a community ecosystem and documentation system.
 *   Apply for the CNCF Sandbox program.
 
-**Mid-Term Goals (within 1 year)**:
+**Mid-Term Goals （within 1 year）**:
 
-*   Support multiple Kubernetes distributions (K3s, K8s, RKE2).
+*   Support multiple Kubernetes distributions （K3s, K8s, RKE2）.
 *   Integrate with mainstream cloud-native toolchains.
-*   Enhance enterprise-grade features (RBAC, auditing, compliance).
+*   Enhance enterprise-grade features （RBAC, auditing, compliance）.
 *   Obtain production environment validation cases.
 
-**Long-Term Vision (2-3 years)**:
+**Long-Term Vision （2-3 years）**:
 
 *   Become the standard high-availability solution for cost-sensitive scenarios.
 *   Support multi-cloud and hybrid cloud deployments.
@@ -541,7 +541,7 @@ geminik8s/
 │   ├── cluster/                  # Cluster configuration templates
 │   └── node/                     # Node configuration templates
 ├── docs/                         # Documentation
-│   ├── architecture.md           # Architecture document (this document)
+│   ├── architecture.md           # Architecture document （this document）
 │   ├── installation.md           # Installation guide
 │   ├── operations.md             # Operations manual
 │   └── troubleshooting.md        # Troubleshooting
@@ -592,22 +592,22 @@ In the design of this distributed system, geminik8s makes a sensible trade-off w
 
 ## References
 
-[1] Kairos - Composable Operating System: [https://kairos.io/](https://kairos.io/)
+[1] Kairos - Composable Operating System: [https://kairos.io/]（https://kairos.io/）
 
-[2] K3s - Lightweight Kubernetes: [https://k3s.io/](https://k3s.io/)
+[2] K3s - Lightweight Kubernetes: [https://k3s.io/]（https://k3s.io/）
 
-[3] kube-vip - Virtual IP and Load Balancer: [https://github.com/kube-vip/kube-vip](https://github.com/kube-vip/kube-vip)
+[3] kube-vip - Virtual IP and Load Balancer: [https://github.com/kube-vip/kube-vip]（https://github.com/kube-vip/kube-vip）
 
-[4] Harbor - Cloud Native Registry: [https://goharbor.io/](https://goharbor.io/)
+[4] Harbor - Cloud Native Registry: [https://goharbor.io/]（https://goharbor.io/）
 
-[5] System Upgrade Controller: [https://github.com/rancher/system-upgrade-controller](https://github.com/rancher/system-upgrade-controller)
+[5] System Upgrade Controller: [https://github.com/rancher/system-upgrade-controller]（https://github.com/rancher/system-upgrade-controller）
 
-[6] Kine - etcd API to SQL: [https://github.com/k3s-io/kine](https://github.com/k3s-io/kine)
+[6] Kine - etcd API to SQL: [https://github.com/k3s-io/kine]（https://github.com/k3s-io/kine）
 
-[7] PostgreSQL Official Documentation: [https://www.postgresql.org/](https://www.postgresql.org/)
+[7] PostgreSQL Official Documentation: [https://www.postgresql.org/]（https://www.postgresql.org/）
 
-[8] CAP Theorem: [https://en.wikipedia.org/wiki/CAP_theorem](https://en.wikipedia.org/wiki/CAP_theorem)
+[8] CAP Theorem: [https://en.wikipedia.org/wiki/CAP_theorem]（https://en.wikipedia.org/wiki/CAP_theorem）
 
-[9] Kubernetes Architecture: [https://kubernetes.io/docs/concepts/architecture/](https://kubernetes.io/docs/concepts/architecture/)
+[9] Kubernetes Architecture: [https://kubernetes.io/docs/concepts/architecture/]（https://kubernetes.io/docs/concepts/architecture/）
 
-[10] Cobra CLI Framework: [https://github.com/spf13/cobra](https://github.com/spf13/cobra)
+[10] Cobra CLI Framework: [https://github.com/spf13/cobra]（https://github.com/spf13/cobra）
