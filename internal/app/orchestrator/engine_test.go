@@ -40,58 +40,180 @@ func (m *mockConfigManager) Render(templatePath string, data interface{}) (strin
 // --- Tests ---
 
 func TestEngineDeploy(t *testing.T) {
-	executeCalled := false
-	pluginName := ""
-	mockPluginMgr := &mockPluginManager{
-		ExecuteFunc: func(ctx context.Context, name string, params api.PluginParams) (*api.PluginResult, error) {
-			executeCalled = true
-			pluginName = name
-			if _, ok := params["config"]; !ok {
-				t.Error("expected 'config' in plugin params")
-			}
-			return &api.PluginResult{Success: true}, nil
-		},
-	}
+	t.Run("Success", func(t *testing.T) {
+		executeCalled := false
+		pluginName := ""
+		mockPluginMgr := &mockPluginManager{
+			ExecuteFunc: func(ctx context.Context, name string, params api.PluginParams) (*api.PluginResult, error) {
+				executeCalled = true
+				pluginName = name
+				if _, ok := params["config"]; !ok {
+					t.Error("expected 'config' in plugin params")
+				}
+				return &api.PluginResult{Success: true}, nil
+			},
+		}
 
-	engine := NewEngine(mockPluginMgr, nil, nil)
-	cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test"}}
+		engine := NewEngine(mockPluginMgr, nil, nil)
+		cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test"}}
 
-	err := engine.Deploy(context.Background(), cfg)
-	if err != nil {
-		t.Fatalf("Deploy failed: %v", err)
-	}
+		err := engine.Deploy(context.Background(), cfg)
+		if err != nil {
+			t.Fatalf("Deploy failed: %v", err)
+		}
 
-	if !executeCalled {
-		t.Errorf("expected plugin manager Execute to be called")
-	}
-	if pluginName != "deploy" {
-		t.Errorf("expected 'deploy' plugin to be called, got '%s'", pluginName)
-	}
+		if !executeCalled {
+			t.Errorf("expected plugin manager Execute to be called")
+		}
+		if pluginName != "deploy" {
+			t.Errorf("expected 'deploy' plugin to be called, got '%s'", pluginName)
+		}
+	})
+
+	t.Run("PluginError", func(t *testing.T) {
+		mockPluginMgr := &mockPluginManager{
+			ExecuteFunc: func(ctx context.Context, name string, params api.PluginParams) (*api.PluginResult, error) {
+				return nil, errors.New("plugin failed")
+			},
+		}
+
+		engine := NewEngine(mockPluginMgr, nil, nil)
+		cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test"}}
+
+		err := engine.Deploy(context.Background(), cfg)
+		if err == nil {
+			t.Fatalf("expected error, got nil")
+		}
+		if err.Error() != "plugin failed" {
+			t.Fatalf("expected 'plugin failed' error, got '%v'", err)
+		}
+	})
 }
 
 func TestEngineGetStatus(t *testing.T) {
-	mockPluginMgr := &mockPluginManager{
-		ExecuteFunc: func(ctx context.Context, name string, params api.PluginParams) (*api.PluginResult, error) {
-			if name != "health" {
-				t.Errorf("expected 'health' plugin to be called, got '%s'", name)
+	t.Run("Success", func(t *testing.T) {
+		mockPluginMgr := &mockPluginManager{
+			ExecuteFunc: func(ctx context.Context, name string, params api.PluginParams) (*api.PluginResult, error) {
+				if name != "health" {
+					t.Errorf("expected 'health' plugin to be called, got '%s'", name)
+				}
+				return &api.PluginResult{
+					Success: true,
+					Data:    map[string]interface{}{"status": "Running"},
+				}, nil
+			},
+		}
+
+		engine := NewEngine(mockPluginMgr, nil, nil)
+		cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test"}}
+
+		status, err := engine.GetStatus(context.Background(), cfg)
+		if err != nil {
+			t.Fatalf("GetStatus failed: %v", err)
+		}
+
+		if *status != types.StatusRunning {
+			t.Errorf("expected status to be 'Running', got '%s'", *status)
+		}
+	})
+
+	t.Run("PluginError", func(t *testing.T) {
+		mockPluginMgr := &mockPluginManager{
+			ExecuteFunc: func(ctx context.Context, name string, params api.PluginParams) (*api.PluginResult, error) {
+				return nil, errors.New("plugin failed")
+			},
+		}
+
+		engine := NewEngine(mockPluginMgr, nil, nil)
+		cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test"}}
+
+		_, err := engine.GetStatus(context.Background(), cfg)
+		if err == nil {
+			t.Fatalf("expected error, got nil")
+		}
+		if err.Error() != "plugin failed" {
+			t.Fatalf("expected 'plugin failed' error, got '%v'", err)
+		}
+	})
+
+	t.Run("InvalidData", func(t *testing.T) {
+		mockPluginMgr := &mockPluginManager{
+			ExecuteFunc: func(ctx context.Context, name string, params api.PluginParams) (*api.PluginResult, error) {
+				return &api.PluginResult{
+					Success: true,
+					Data:    map[string]interface{}{"status": 123}, // Invalid data type
+				}, nil
+			},
+		}
+
+		engine := NewEngine(mockPluginMgr, nil, nil)
+		cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test"}}
+
+		status, err := engine.GetStatus(context.Background(), cfg)
+		if err != nil {
+			t.Fatalf("GetStatus failed with unexpected error: %v", err)
+		}
+		if *status != types.StatusUnknown {
+			t.Errorf("expected status to be 'Unknown', got '%s'", *status)
+		}
+	})
+}
+
+func TestEngineInit(t *testing.T) {
+	saveCalled := false
+	var savedPath string
+	mockConfigMgr := &mockConfigManager{
+		SaveFunc: func(cfg *types.ClusterConfig, path string) error {
+			saveCalled = true
+			savedPath = path
+			if cfg.Metadata.Name != "test-init" {
+				t.Errorf("expected config name to be 'test-init', got '%s'", cfg.Metadata.Name)
 			}
-			return &api.PluginResult{
-				Success: true,
-				Data:    map[string]interface{}{"status": "Running"},
-			}, nil
+			return nil
 		},
 	}
 
-	engine := NewEngine(mockPluginMgr, nil, nil)
-	cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test"}}
+	engine := NewEngine(nil, mockConfigMgr, nil)
+	cfg := &types.ClusterConfig{Metadata: types.Metadata{Name: "test-init"}}
 
-	status, err := engine.GetStatus(context.Background(), cfg)
+	err := engine.Init(context.Background(), cfg)
 	if err != nil {
-		t.Fatalf("GetStatus failed: %v", err)
+		t.Fatalf("Init failed: %v", err)
 	}
 
-	if *status != types.StatusRunning {
-		t.Errorf("expected status to be 'Running', got '%s'", *status)
+	if !saveCalled {
+		t.Errorf("expected config manager Save to be called")
+	}
+	if savedPath != "cluster.yaml" {
+		t.Errorf("expected to save to 'cluster.yaml', got '%s'", savedPath)
+	}
+}
+
+func TestEngineUnimplementedMethods(t *testing.T) {
+	engine := NewEngine(nil, nil, nil)
+	cfg := &types.ClusterConfig{}
+	ctx := context.Background()
+
+	testCases := []struct {
+		name string
+		err  error
+	}{
+		{"Failover", engine.Failover(ctx, cfg, "")},
+		{"Upgrade", engine.Upgrade(ctx, cfg, "")},
+		{"ReplaceNode", engine.ReplaceNode(ctx, cfg, "", "")},
+		{"Backup", engine.Backup(ctx, cfg, "")},
+		{"Restore", engine.Restore(ctx, cfg, "")},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.err == nil {
+				t.Fatalf("expected error, got nil")
+			}
+			if tc.err.Error() != "not implemented" {
+				t.Fatalf("expected 'not implemented' error, got '%v'", tc.err)
+			}
+		})
 	}
 }
 

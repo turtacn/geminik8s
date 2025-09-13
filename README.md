@@ -8,7 +8,9 @@
 
 > **A cost-effective dual-node high availability Kubernetes solution for resource-optimized deployments**
 
-[中文版 README](./README-zh.md) | [Architecture Documentation](./docs/architecture.md)
+[中文版 README](./README-zh.md) | [English README](./README.md)
+
+**Documentation:** [Architecture (English)](./docs/architecture.en.md) | [Architecture (中文)](./docs/architecture.md)
 
 ## 🚀 Mission Statement
 
@@ -123,11 +125,13 @@ gemin_k8s replace-node --cluster "my-cluster" \
 
 ## 📖 Documentation
 
-* [Architecture Overview](./docs/architecture.md) - Detailed system architecture and design decisions
-* [Installation Guide](./docs/installation.md) - Comprehensive installation instructions
-* [Configuration Reference](./docs/configuration.md) - Complete configuration options
-* [Operation Manual](./docs/operations.md) - Day-2 operations guide
-* [Troubleshooting](./docs/troubleshooting.md) - Common issues and solutions
+*   **[Architecture Overview (English)](./docs/architecture.en.md)**: Detailed system architecture and design decisions.
+*   **[Architecture Overview (中文)](./docs/architecture.md)**: 详细的系统架构和设计决策.
+*   **[Installation Guide](./docs/installation.md)**: Comprehensive installation instructions.
+*   **[Configuration Reference](./docs/configuration.md)**: Complete configuration options.
+*   **[Operation Manual](./docs/operations.md)**: Day-2 operations guide.
+*   **[Troubleshooting](./docs/troubleshooting.md)**: Common issues and solutions.
+*   **[Contributing Guide](./CONTRIBUTING.md)**: How to contribute to the project.
 
 ## 🤝 Contributing
 

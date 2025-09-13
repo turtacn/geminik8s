@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 
 	"github.com/turtacn/geminik8s/internal/domain/cluster"
 	"github.com/turtacn/geminik8s/pkg/api"
@@ -41,13 +42,15 @@ func (e *engine) Init(ctx context.Context, cfg *types.ClusterConfig) error {
 
 // Deploy orchestrates the deployment of a cluster using a plugin.
 func (e *engine) Deploy(ctx context.Context, cfg *types.ClusterConfig) error {
-	// The orchestrator could use a domain service...
-	// cluster, err := e.clusterSvc.CreateCluster(ctx, cfg)
-	// if err != nil { return err }
-	// return e.clusterSvc.DeployCluster(ctx, cluster.ID)
+	// First, create the cluster record in the database using the domain service.
+	if e.clusterSvc != nil {
+		_, err := e.clusterSvc.CreateCluster(ctx, cfg)
+		if err != nil {
+			return err
+		}
+	}
 
-	// ... or it could use a plugin-based workflow.
-	// The architecture diagram suggests the latter.
+	// Then, execute the deployment plugin.
 	params := api.PluginParams{
 		"config": cfg,
 	}
@@ -79,23 +82,23 @@ func (e *engine) GetStatus(ctx context.Context, cfg *types.ClusterConfig) (*type
 // typically finding the right plugin and executing it with the given config.
 
 func (e *engine) Failover(ctx context.Context, cfg *types.ClusterConfig, promoteNode string) error {
-	panic("implement me")
+	return errors.New("not implemented")
 }
 
 func (e *engine) Upgrade(ctx context.Context, cfg *types.ClusterConfig, version string) error {
-	panic("implement me")
+	return errors.New("not implemented")
 }
 
 func (e *engine) ReplaceNode(ctx context.Context, cfg *types.ClusterConfig, oldNode, newNode string) error {
-	panic("implement me")
+	return errors.New("not implemented")
 }
 
 func (e *engine) Backup(ctx context.Context, cfg *types.ClusterConfig, destination string) error {
-	panic("implement me")
+	return errors.New("not implemented")
 }
 
 func (e *engine) Restore(ctx context.Context, cfg *types.ClusterConfig, source string) error {
-	panic("implement me")
+	return errors.New("not implemented")
 }
 
 //Personal.AI order the ending

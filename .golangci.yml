@@ -1,0 +1,50 @@
+# .golangci.yml
+# Configuration for golangci-lint
+
+run:
+  # The version of Go to use.
+  go: "1.21"
+
+linters:
+  # Enable a curated set of default linters.
+  # https://golangci-lint.run/usage/linters/#enabled-by-default
+  enable-all: false
+  disable-all: false
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gofumpt
+    - goimports
+    - stylecheck
+    - unconvert
+    - unparam
+
+linters-settings:
+  govet:
+    # Enable all analyzers from govet.
+    enable-all: true
+  gofumpt:
+    # Use extra rules for more strict formatting.
+    extra-rules: true
+  goimports:
+    # Put local imports after 3rd-party packages.
+    local-prefixes: github.com/turtacn/geminik8s
+
+issues:
+  # Exclude some default exclusions to improve code quality.
+  exclude-use-default: false
+  # Exclude known issues in generated code or vendored libraries.
+  exclude_rules:
+    - path: _test\.go
+      linters:
+        - funlen
+        - goconst
+        - goerr113
+
+# More information on configuration options:
+# https://golangci-lint.run/usage/configuration/

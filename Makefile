@@ -62,6 +62,34 @@ deps:
 	@echo "Tidying dependencies..."
 	$(GOCMD) mod tidy
 
-.PHONY: all build test clean run build-linux deps
+# Tooling
+GOLANGCILINT_VERSION=v1.55.2
+GOFUMPT_VERSION=v0.6.0
+
+## install-lint: installs golangci-lint
+install-lint:
+	@echo "Installing golangci-lint..."
+	@GOBIN=$(shell pwd)/bin $(GOCMD) install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCILINT_VERSION)
+
+## install-fumpt: installs gofumpt
+install-fumpt:
+	@echo "Installing gofumpt..."
+	@GOBIN=$(shell pwd)/bin $(GOCMD) install mvdan.cc/gofumpt@$(GOFUMPT_VERSION)
+
+## tools: installs all tools
+tools: install-lint install-fumpt
+
+## lint: runs the linter
+lint:
+	@echo "Linting code..."
+	@./bin/golangci-lint run ./...
+
+## format: formats the code
+format:
+	@echo "Formatting code..."
+	@./bin/gofumpt -l -w .
+
+# Update phony targets
+.PHONY: all build test clean run build-linux deps tools install-lint install-fumpt lint format
 
 #Personal.AI order the ending
